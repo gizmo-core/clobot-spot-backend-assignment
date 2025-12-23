@@ -14,29 +14,29 @@ flowchart TD
     classDef app fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
     classDef client fill:#fff3e0,stroke:#ef6c00,stroke-width:2px;
 
-    subgraph IoT_Layer [IoT Edge Layer]
+    subgraph IoT_Layer ["IoT Edge Layer"]
         MockRobot[Mock Robot Generator]:::edge
     end
 
-    subgraph Infrastructure [Infrastructure (Docker)]
-        Mosquitto[MQTT Broker<br/>(Eclipse Mosquitto)]:::infra
-        Postgres[(PostgreSQL<br/>Robot Status History)]:::infra
+    subgraph Infrastructure ["Infrastructure (Docker)"]
+        Mosquitto["MQTT Broker<br/>(Eclipse Mosquitto)"]:::infra
+        Postgres[("PostgreSQL<br/>Robot Status History")]:::infra
     end
 
-    subgraph Backend [FastAPI Application (Async)]
-        subgraph Worker [Background Tasks]
-            MQTT_Sub[MQTT Subscriber<br/>(aiomqtt)]:::app
-            Validator[Data Validator<br/>(Pydantic)]:::app
+    subgraph Backend ["FastAPI Application (Async)"]
+        subgraph Worker ["Background Tasks"]
+            MQTT_Sub["MQTT Subscriber<br/>(aiomqtt)"]:::app
+            Validator["Data Validator<br/>(Pydantic)"]:::app
         end
         
-        subgraph API [API Service]
-            StreamMgr[SSE Connection Manager<br/>(Per-Robot Fan-out)]:::app
-            HistoryAPI[History REST API]:::app
+        subgraph API ["API Service"]
+            StreamMgr["SSE Connection Manager<br/>(Per-Robot Fan-out)"]:::app
+            HistoryAPI["History REST API"]:::app
         end
     end
 
-    subgraph Client [Client]
-        SSEClient[SSE Client<br/>(Browser / curl)]:::client
+    subgraph Client ["Client"]
+        SSEClient["SSE Client<br/>(Browser / curl)"]:::client
     end
 
     MockRobot --"1. Publish (topic: robot/+/status)"--> Mosquitto
