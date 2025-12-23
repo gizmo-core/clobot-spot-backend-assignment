@@ -1,0 +1,44 @@
+services:
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: mqtt-broker
+    ports:
+      - "21883:1883"   # host:container (과제용 포트)
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: spot-postgres
+    environment:
+      POSTGRES_USER: spot
+      POSTGRES_PASSWORD: spotpw
+      POSTGRES_DB: spotdb
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  api:
+    build: .
+    container_name: spot-api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://spot:spotpw@postgres:5432/spotdb
+      MQTT_HOST: mqtt
+      MQTT_PORT: 1883
+      MQTT_USERNAME: test
+      MQTT_PASSWORD: test1234
+    depends_on:
+      - postgres
+      - mqtt
+    restart: unless-stopped
+
+volumes:
+  pgdata:

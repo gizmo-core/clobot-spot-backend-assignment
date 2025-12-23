@@ -1,0 +1,8 @@
+.venv/
+.env
+__pycache__/
+mosquitto/config/passwordfile
+mosquitto/data/
+mosquitto/log/
+*.db
+*.log
