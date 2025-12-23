@@ -1,4 +1,3 @@
-````markdown
 # KLOBOT SPOT Backend Assignment (MQTT → Validate → Store → Stream)
 
 본 과제는 다수 로봇의 상태 메시지를 **MQTT(v5)** 로 수신하고, 명세 기반 **유효성 검증(Validation)** 후 **PostgreSQL** 에 저장하며,  
@@ -168,5 +167,3 @@ MQTT로 수신한 로봇 상태 메시지는 아래 조건을 만족할 때만 D
 * Retry / Backoff (MQTT 재연결 및 DB 오류 대응)
 * Observability (Prometheus metrics + Grafana dashboard)
 * Load test & indexing strategy refinement
-
-```
