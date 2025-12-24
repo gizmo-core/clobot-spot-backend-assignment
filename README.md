@@ -219,7 +219,7 @@ Publisher는 단일 프로세스에서 여러 로봇을 시뮬레이션합니다
 **Scale up example**
 
 ```bash
-ROBOT_COUNT=50 PUBLISH_INTERVAL_SEC=1.5 docker-compose up -d --no-deps publisher
+ROBOT_COUNT=50 PUBLISH_INTERVAL_SEC=1.0 docker-compose up -d --no-deps publisher
 ```
 
 ---
