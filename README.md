@@ -61,8 +61,6 @@ flowchart TD
 * **PostgreSQL**: 구조화된 상태 이력 데이터를 스키마로 안정적으로 관리하고, `(robot, time)` 인덱스 기반 조회가 용이
   * 선정 이유: 시계열 조회 패턴에 강하고, 확장(예: TimescaleDB/PostGIS)으로 향후 요구에 대응 가능
 
-  * (옵션) 추후 시계열/공간 확장(TimescaleDB/PostGIS)도 고려 가능
-
 ---
 
 ## 🚀 How to Run
@@ -73,7 +71,7 @@ flowchart TD
 1. **Run infrastructure**
 
    ```bash
-   docker-compose up -d
+   docker-compose up -d mqtt postgres
    ```
 
 2. **Install deps**
@@ -94,7 +92,7 @@ flowchart TD
    export MQTT_PASSWORD="test1234"
    ```
 
-4. **Run FastAPI**
+4. **Run FastAPI (local)**
 
    ```bash
    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -106,9 +104,11 @@ flowchart TD
    python -m app.mock.publisher
    ```
 
-6. **Run Mock publisher (docker compose)**
+6. **Demo (all-in-compose, order)**
 
    ```bash
+   docker-compose up -d mqtt postgres
+   docker-compose up -d api
    docker-compose up -d publisher
    ```
 
@@ -139,7 +139,7 @@ flowchart TD
 **Example**
 
 ```bash
-curl -N http://localhost:8000/robots/ROBOT-001/feed
+curl -N http://localhost:8000/robots/ROBOT-0001/feed
 ```
 
 ### 2) History query
@@ -151,7 +151,17 @@ curl -N http://localhost:8000/robots/ROBOT-001/feed
 **Example**
 
 ```bash
-curl "http://localhost:8000/robots/ROBOT-001/history?start_time=2025-12-01T00:00:00Z&end_time=2025-12-01T01:00:00Z"
+curl "http://localhost:8000/robots/ROBOT-0001/history?start_time=2025-12-01T00:00:00Z&end_time=2025-12-01T01:00:00Z"
+```
+
+### 3) Health check
+
+* `GET /health`
+
+**Example**
+
+```bash
+curl http://localhost:8000/health
 ```
 
 ---
@@ -205,6 +215,12 @@ Publisher는 단일 프로세스에서 여러 로봇을 시뮬레이션합니다
 * `JITTER_MAX_SEC` (default: 0.2)
 * `ENABLE_STATS_LOG` (default: false)
 * `STATS_LOG_INTERVAL_SEC` (default: 5.0)
+
+**Scale up example**
+
+```bash
+ROBOT_COUNT=50 PUBLISH_INTERVAL_SEC=1.5 docker-compose up -d --no-deps publisher
+```
 
 ---
 
