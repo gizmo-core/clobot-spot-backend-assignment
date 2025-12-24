@@ -2,8 +2,9 @@ import asyncio
 import json
 import logging
 
-from aiomqtt import Client, MqttError
+from aiomqtt import Client, MqttError, ProtocolVersion
 from pydantic import ValidationError
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.config import Settings
 from app.db.queries import insert_robot_status
@@ -37,6 +38,7 @@ async def mqtt_subscriber(settings: Settings, sse_manager: SSEManager) -> None:
                 port=settings.mqtt_port,
                 username=settings.mqtt_username,
                 password=settings.mqtt_password,
+                protocol=ProtocolVersion.V5,
             ) as client:
                 logger.info(
                     "MQTT connected (username=%s)",
@@ -48,7 +50,7 @@ async def mqtt_subscriber(settings: Settings, sse_manager: SSEManager) -> None:
 
                 backoff = 1
                 async for message in client.messages:
-                    logger.info(
+                    logger.debug(
                         "Message received: topic=%s payload=%s",
                         message.topic.value,
                         message.payload,
@@ -67,10 +69,17 @@ async def mqtt_subscriber(settings: Settings, sse_manager: SSEManager) -> None:
                         continue
 
                     async with AsyncSessionLocal() as session:
-                        await insert_robot_status(
-                            session, serial_number, status, payload
-                        )
-                        await session.commit()
+                        try:
+                            await insert_robot_status(
+                                session, serial_number, status, payload
+                            )
+                            await session.commit()
+                        except SQLAlchemyError:
+                            await session.rollback()
+                            logger.exception(
+                                "DB insert failed for serial=%s", serial_number
+                            )
+                            continue
 
                     out = RobotStatusOut(
                         serial_number=serial_number,

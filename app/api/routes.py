@@ -46,15 +46,20 @@ async def robot_history(
     start_time: str = Query(...),
     end_time: str = Query(...),
     include_payload: bool = Query(False),
+    limit: int = Query(500, ge=1, le=5000),
 ) -> list[dict]:
     try:
         start_dt = _parse_datetime(start_time)
         end_dt = _parse_datetime(end_time)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid datetime format")
+    if end_dt < start_dt:
+        raise HTTPException(status_code=400, detail="end_time must be >= start_time")
 
     async with AsyncSessionLocal() as session:
-        items = await fetch_robot_history(session, serial_number, start_dt, end_dt, include_payload)
+        items = await fetch_robot_history(
+            session, serial_number, start_dt, end_dt, include_payload, limit
+        )
 
     return [item.model_dump(by_alias=True) for item in items]
 

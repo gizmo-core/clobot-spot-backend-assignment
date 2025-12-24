@@ -59,6 +59,7 @@ flowchart TD
 * **MQTT v5**: 로봇/IoT 상태 수집에 적합한 pub/sub 프로토콜 (Topic 기반 라우팅)
 * **SSE**: 서버 → 클라이언트 단방향 실시간 스트리밍에 적합하며 구현이 단순
 * **PostgreSQL**: 구조화된 상태 이력 데이터를 스키마로 안정적으로 관리하고, `(robot, time)` 인덱스 기반 조회가 용이
+  * 선정 이유: 시계열 조회 패턴에 강하고, 확장(예: TimescaleDB/PostGIS)으로 향후 요구에 대응 가능
 
   * (옵션) 추후 시계열/공간 확장(TimescaleDB/PostGIS)도 고려 가능
 
@@ -120,6 +121,7 @@ flowchart TD
   * Host: `localhost`
   * Port: `21883`
   * Username/Password: `test` / `test1234`
+  * Docker compose 내부: Host `mqtt`, Port `1883`
 
 * **Topic**
 
@@ -144,6 +146,7 @@ curl -N http://localhost:8000/robots/ROBOT-001/feed
 
 * `GET /robots/{serial_number}/history?start_time=...&end_time=...`
 * `include_payload=true` 로 원문 payload 포함 (선택)
+* `limit` 으로 최대 반환 수 제한 (default: 500, max: 5000)
 
 **Example**
 
@@ -197,7 +200,7 @@ Publisher는 단일 프로세스에서 여러 로봇을 시뮬레이션합니다
 **Environment variables**
 
 * `ROBOT_COUNT` (default: 2)
-* `PUBLISH_INTERVAL_SEC` (default: 1.5, per-robot interval)
+* `PUBLISH_INTERVAL_SEC` (default: 1.0, per-robot interval)
 * `INVALID_RATE` (default: 0.0)
 * `JITTER_MAX_SEC` (default: 0.2)
 * `ENABLE_STATS_LOG` (default: false)

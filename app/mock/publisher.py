@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime, timezone
 from itertools import cycle
 
-from aiomqtt import Client, MqttError
+from aiomqtt import Client, MqttError, ProtocolVersion
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def _load_settings() -> dict:
         "mqtt_username": os.getenv("MQTT_USERNAME"),
         "mqtt_password": os.getenv("MQTT_PASSWORD"),
         "robot_count": int(os.getenv("ROBOT_COUNT", "2")),
-        "publish_interval_sec": float(os.getenv("PUBLISH_INTERVAL_SEC", "1.5")),
+        "publish_interval_sec": float(os.getenv("PUBLISH_INTERVAL_SEC", "1.0")),
         "invalid_rate": float(os.getenv("INVALID_RATE", "0.0")),
         "jitter_max_sec": float(os.getenv("JITTER_MAX_SEC", "0.2")),
         "stats_interval_env": os.getenv("STATS_LOG_INTERVAL_SEC"),
@@ -166,6 +166,7 @@ async def run() -> None:
                 port=settings["mqtt_port"],
                 username=settings["mqtt_username"],
                 password=settings["mqtt_password"],
+                protocol=ProtocolVersion.V5,
             ) as client:
                 logger.info("MQTT connected")
                 backoff = 1

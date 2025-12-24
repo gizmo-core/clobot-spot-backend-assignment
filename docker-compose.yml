@@ -50,7 +50,7 @@ services:
       MQTT_USERNAME: test
       MQTT_PASSWORD: test1234
       ROBOT_COUNT: 2
-      PUBLISH_INTERVAL_SEC: 1.5
+      PUBLISH_INTERVAL_SEC: 1.0
       INVALID_RATE: 0.0
     depends_on:
       - mqtt

@@ -35,12 +35,14 @@ async def fetch_robot_history(
     start_time: datetime,
     end_time: datetime,
     include_payload: bool,
+    limit: int,
 ) -> list[RobotStatusOut]:
     stmt = (
         select(RobotStatusHistory)
         .where(RobotStatusHistory.serial_number == serial_number)
         .where(RobotStatusHistory.ts.between(start_time, end_time))
         .order_by(RobotStatusHistory.ts.asc())
+        .limit(limit)
     )
     result = await session.execute(stmt)
     rows = result.scalars().all()
