@@ -25,7 +25,7 @@ class Location(BaseModel):
 
 
 class RobotStatusIn(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, extra="allow")
 
     ts: datetime | None = Field(default=None, alias="timestamp")
     battery_level: int = Field(ge=1, le=100)

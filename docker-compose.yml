@@ -40,5 +40,21 @@ services:
       - mqtt
     restart: unless-stopped
 
+  publisher:
+    build: .
+    container_name: spot-publisher
+    command: ["python", "-m", "app.mock.publisher"]
+    environment:
+      MQTT_HOST: mqtt
+      MQTT_PORT: 1883
+      MQTT_USERNAME: test
+      MQTT_PASSWORD: test1234
+      ROBOT_COUNT: 2
+      PUBLISH_INTERVAL_SEC: 1.5
+      INVALID_RATE: 0.0
+    depends_on:
+      - mqtt
+    restart: unless-stopped
+
 volumes:
   pgdata:

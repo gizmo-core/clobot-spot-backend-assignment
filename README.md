@@ -99,10 +99,16 @@ flowchart TD
    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
-5. **Run Mock publisher**
+5. **Run Mock publisher (local)**
 
    ```bash
-   python mock_robot_publisher.py
+   python -m app.mock.publisher
+   ```
+
+6. **Run Mock publisher (docker compose)**
+
+   ```bash
+   docker-compose up -d publisher
    ```
 
 ---
@@ -181,6 +187,21 @@ MQTT로 수신한 로봇 상태 메시지는 아래 조건을 만족할 때만 D
 * MQTT Subscriber는 FastAPI 앱 구동 시 백그라운드 태스크로 실행된다고 가정합니다.
 * SSE는 로봇별로 fan-out 가능한 구조(로봇별 연결 관리)를 목표로 합니다.
 * 본 과제 범위에서는 **정확성(Validation) / 실시간성(SSE) / 조회성(History)** 을 우선합니다.
+
+---
+
+## 🤖 Mock Publisher
+
+Publisher는 단일 프로세스에서 여러 로봇을 시뮬레이션합니다.
+
+**Environment variables**
+
+* `ROBOT_COUNT` (default: 2)
+* `PUBLISH_INTERVAL_SEC` (default: 1.5, per-robot interval)
+* `INVALID_RATE` (default: 0.0)
+* `JITTER_MAX_SEC` (default: 0.2)
+* `ENABLE_STATS_LOG` (default: false)
+* `STATS_LOG_INTERVAL_SEC` (default: 5.0)
 
 ---
 
