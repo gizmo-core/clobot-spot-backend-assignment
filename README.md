@@ -75,13 +75,31 @@ flowchart TD
    docker-compose up -d
    ```
 
-2. **Run FastAPI**
+2. **Install deps**
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+3. **Set environment**
+
+   ```bash
+   export DATABASE_URL="postgresql+asyncpg://spot:spotpw@localhost:5432/spotdb"
+   export MQTT_HOST="localhost"
+   export MQTT_PORT="21883"
+   export MQTT_USERNAME="test"
+   export MQTT_PASSWORD="test1234"
+   ```
+
+4. **Run FastAPI**
 
    ```bash
    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
-3. **Run Mock publisher**
+5. **Run Mock publisher**
 
    ```bash
    python mock_robot_publisher.py
@@ -119,6 +137,7 @@ curl -N http://localhost:8000/robots/ROBOT-001/feed
 ### 2) History query
 
 * `GET /robots/{serial_number}/history?start_time=...&end_time=...`
+* `include_payload=true` 로 원문 payload 포함 (선택)
 
 **Example**
 
@@ -148,6 +167,10 @@ MQTT로 수신한 로봇 상태 메시지는 아래 조건을 만족할 때만 D
 * **location**
 
   * `latitude`, `longitude`, `height` 3개 필드가 모두 존재해야 함 (float)
+* **timestamp**
+
+  * 입력 필드명은 `timestamp`
+  * DB에는 `ts`로 저장, 누락 시 수신 시각 사용
 
 > Validation 실패 메시지는 저장하지 않으며, 운영 관점에서 원인 파악을 위해 구조화 로그로 남기는 것을 권장합니다.
 
@@ -158,6 +181,14 @@ MQTT로 수신한 로봇 상태 메시지는 아래 조건을 만족할 때만 D
 * MQTT Subscriber는 FastAPI 앱 구동 시 백그라운드 태스크로 실행된다고 가정합니다.
 * SSE는 로봇별로 fan-out 가능한 구조(로봇별 연결 관리)를 목표로 합니다.
 * 본 과제 범위에서는 **정확성(Validation) / 실시간성(SSE) / 조회성(History)** 을 우선합니다.
+
+---
+
+## 🧪 Tests
+
+```bash
+pytest
+```
 
 ---
 
