@@ -82,14 +82,16 @@ flowchart TD
    pip install -r requirements.txt
    ```
 
-3. **Set environment**
+3. **Set environment (.env)**
 
    ```bash
-   export DATABASE_URL="postgresql+asyncpg://spot:spotpw@localhost:5432/spotdb"
-   export MQTT_HOST="localhost"
-   export MQTT_PORT="21883"
-   export MQTT_USERNAME="test"
-   export MQTT_PASSWORD="test1234"
+   cat <<'EOF' > .env
+   DATABASE_URL=postgresql+asyncpg://spot:spotpw@localhost:5432/spotdb
+   MQTT_HOST=localhost
+   MQTT_PORT=21883
+   MQTT_USERNAME=test
+   MQTT_PASSWORD=test1234
+   EOF
    ```
 
 4. **Run FastAPI (local)**
