@@ -3,6 +3,8 @@ uvicorn[standard]==0.30.6
 aiomqtt==2.3.0
 pydantic==2.10.3
 pydantic-settings==2.6.1
+prometheus-client==0.20.0
+prometheus-fastapi-instrumentator==7.0.0
 sqlalchemy==2.0.36
 asyncpg==0.30.0
 pytest==8.3.4

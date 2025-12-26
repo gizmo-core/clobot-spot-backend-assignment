@@ -11,6 +11,16 @@ from app.db.queries import insert_robot_status
 from app.db.session import AsyncSessionLocal
 from app.schemas.robot_status import RobotStatusIn, RobotStatusOut
 from app.sse.manager import SSEManager
+from app.metrics import (
+    db_insert_fail_total,
+    db_insert_total,
+    mqtt_messages_received_total,
+    observe_message_lag,
+    robot_status_invalid_total,
+    robot_status_updates_total,
+    robot_status_valid_total,
+    update_last_seen,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +32,14 @@ def _extract_serial(topic: str) -> str | None:
     if parts[0] != "robot" or parts[2] != "status":
         return None
     return parts[1]
+
+
+def _classify_validation_error(exc: ValidationError) -> str:
+    for error in exc.errors():
+        message = error.get("msg", "")
+        if "current_drive_id" in message:
+            return "state_rule"
+    return "schema"
 
 
 async def mqtt_subscriber(settings: Settings, sse_manager: SSEManager) -> None:
@@ -61,12 +79,28 @@ async def mqtt_subscriber(settings: Settings, sse_manager: SSEManager) -> None:
                             "Invalid topic received: %s", message.topic.value
                         )
                         continue
+                    mqtt_messages_received_total.inc()
+                    update_last_seen(serial_number)
                     try:
                         payload = json.loads(message.payload.decode("utf-8"))
-                        status = RobotStatusIn.model_validate(payload)
-                    except (json.JSONDecodeError, ValidationError) as exc:
+                    except json.JSONDecodeError as exc:
+                        robot_status_invalid_total.labels("json_decode").inc()
                         logger.warning("Validation failed: %s", exc)
                         continue
+                    try:
+                        status = RobotStatusIn.model_validate(payload)
+                    except ValidationError as exc:
+                        robot_status_invalid_total.labels(
+                            _classify_validation_error(exc)
+                        ).inc()
+                        logger.warning("Validation failed: %s", exc)
+                        continue
+
+                    robot_status_valid_total.inc()
+                    robot_status_updates_total.labels(
+                        status.driving_status.value
+                    ).inc()
+                    observe_message_lag(status.ts)
 
                     async with AsyncSessionLocal() as session:
                         try:
@@ -74,8 +108,10 @@ async def mqtt_subscriber(settings: Settings, sse_manager: SSEManager) -> None:
                                 session, serial_number, status, payload
                             )
                             await session.commit()
+                            db_insert_total.inc()
                         except SQLAlchemyError:
                             await session.rollback()
+                            db_insert_fail_total.inc()
                             logger.exception(
                                 "DB insert failed for serial=%s", serial_number
                             )

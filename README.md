@@ -114,6 +114,12 @@ flowchart TD
    docker-compose up -d publisher
    ```
 
+7. **(Optional) Prometheus + Grafana**
+
+   ```bash
+   docker-compose up -d prometheus grafana
+   ```
+
 ---
 
 ## 🔌 MQTT
@@ -217,12 +223,22 @@ Publisher는 단일 프로세스에서 여러 로봇을 시뮬레이션합니다
 * `JITTER_MAX_SEC` (default: 0.2)
 * `ENABLE_STATS_LOG` (default: false)
 * `STATS_LOG_INTERVAL_SEC` (default: 5.0)
+* `ACTIVE_WINDOW_SEC` (default: 10.0, active/stale 판단 기준)
 
 **Scale up example**
 
 ```bash
 ROBOT_COUNT=50 PUBLISH_INTERVAL_SEC=1.0 docker-compose up -d --no-deps publisher
 ```
+
+---
+
+## 📈 Metrics (Optional)
+
+* Prometheus: `http://localhost:9090`
+* Grafana: `http://localhost:3000` (default: `admin` / `admin`)
+* FastAPI metrics: `http://localhost:8000/metrics`
+* Grafana dashboard JSON: `grafana/robot_telemetry_dashboard.json` (Import → Upload JSON)
 
 ---
 
