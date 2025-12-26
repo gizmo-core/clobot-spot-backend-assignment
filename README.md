@@ -224,6 +224,7 @@ Publisher는 단일 프로세스에서 여러 로봇을 시뮬레이션합니다
 * `ENABLE_STATS_LOG` (default: false)
 * `STATS_LOG_INTERVAL_SEC` (default: 5.0)
 * `ACTIVE_WINDOW_SEC` (default: 10.0, active/stale 판단 기준)
+* `ACTIVE_REFRESH_SEC` (default: 5.0, active/stale 갱신 주기)
 
 **Scale up example**
 

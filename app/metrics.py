@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from prometheus_client import Counter, Gauge, Histogram
 
 ACTIVE_WINDOW_SEC = float(os.getenv("ACTIVE_WINDOW_SEC", "10"))
+ACTIVE_REFRESH_SEC = float(os.getenv("ACTIVE_REFRESH_SEC", "5"))
 
 mqtt_messages_received_total = Counter(
     "mqtt_messages_received_total",
@@ -55,13 +56,18 @@ sse_subscribers = Gauge(
 _last_seen: dict[str, float] = {}
 
 
-def update_last_seen(serial_number: str, now: float | None = None) -> None:
+def recompute_active_stale(now: float | None = None) -> None:
     now_ts = time.time() if now is None else now
-    _last_seen[serial_number] = now_ts
     active = sum(1 for ts in _last_seen.values() if now_ts - ts <= ACTIVE_WINDOW_SEC)
     stale = len(_last_seen) - active
     robots_active.set(active)
     robots_stale.set(stale)
+
+
+def update_last_seen(serial_number: str, now: float | None = None) -> None:
+    now_ts = time.time() if now is None else now
+    _last_seen[serial_number] = now_ts
+    recompute_active_stale(now_ts)
 
 
 def observe_message_lag(message_ts: datetime) -> None:
