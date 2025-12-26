@@ -243,6 +243,14 @@ ROBOT_COUNT=50 PUBLISH_INTERVAL_SEC=1.0 docker-compose up -d --no-deps publisher
 
 ---
 
+## 📊 Grafana Quick Start
+
+1. Open `http://localhost:3000` and sign in with `admin` / `admin`.
+2. Add Prometheus datasource: `http://prometheus:9090`.
+3. Import dashboard JSON from `grafana/robot_telemetry_dashboard.json`.
+
+---
+
 ## 🧪 Tests
 
 ```bash
