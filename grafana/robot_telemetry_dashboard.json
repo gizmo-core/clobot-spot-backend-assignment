@@ -610,7 +610,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "normal"
+              "mode": "none"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -656,9 +656,19 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(robot_status_invalid_total[1m])) by (reason)",
-          "legendFormat": "{{reason}}",
+          "expr": "sum(rate(robot_status_invalid_total{reason=\"state_rule\"}[1m])) or vector(0)",
+          "legendFormat": "state_rule",
           "refId": "A"
+        },
+        {
+          "expr": "sum(rate(robot_status_invalid_total{reason=\"json_decode\"}[1m])) or vector(0)",
+          "legendFormat": "json_decode",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(robot_status_invalid_total{reason=\"schema\"}[1m])) or vector(0)",
+          "legendFormat": "schema",
+          "refId": "C"
         }
       ],
       "title": "Invalid Reasons (msg/s)",

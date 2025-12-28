@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 from prometheus_client import Counter, Gauge, Histogram
 
-ACTIVE_WINDOW_SEC = float(os.getenv("ACTIVE_WINDOW_SEC", "10"))
+ACTIVE_WINDOW_SEC = float(os.getenv("ACTIVE_WINDOW_SEC", "20"))
 ACTIVE_REFRESH_SEC = float(os.getenv("ACTIVE_REFRESH_SEC", "5"))
 
 mqtt_messages_received_total = Counter(
