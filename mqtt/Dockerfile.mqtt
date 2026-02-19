@@ -1,0 +1,16 @@
+FROM eclipse-mosquitto:2
+
+USER root
+
+# 설정 파일 복사
+COPY mosquitto.conf /mosquitto/config/mosquitto.conf
+
+# 패스워드 파일 생성 (api/publisher 환경변수에 적어두신 test / test1234 기준)
+RUN touch /mosquitto/config/passwordfile && \
+    mosquitto_passwd -b /mosquitto/config/passwordfile test test1234
+
+# 권한 설정 (1883은 mosquitto 유저의 기본 UID입니다)
+RUN mkdir -p /mosquitto/data /mosquitto/log && \
+    chown -R 1883:1883 /mosquitto
+
+USER 1883

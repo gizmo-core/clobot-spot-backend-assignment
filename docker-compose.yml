@@ -1,11 +1,12 @@
 services:
   mqtt:
-    image: eclipse-mosquitto:2
+    build:
+      context: ./mqtt
+      dockerfile: Dockerfile.mqtt
     container_name: mqtt-broker
     ports:
       - "21883:1883"   # host:container (과제용 포트)
     volumes:
-      - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
       - ./mosquitto/log:/mosquitto/log
     restart: unless-stopped
